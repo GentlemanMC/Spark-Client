@@ -2,12 +2,15 @@ name: Gradle Build
 
 on:
   push:
-    branches: [ master ]
+  workflow_dispatch:
+  pull_request:
+    types: [opened, reopened]
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8
@@ -22,18 +25,8 @@ jobs:
           ./gradlew build
       - name: List files
         run: ls
-      - name: Prepare Artifact for upload
-        env:
-          RUN_ID: ${{ github.run_number }}
-        run: cp ./build/libs/Spark-Client-*.jar ./build/libs/Spark-T${RUN_ID}.jar
-      - name: Upload a Build Artifact to github
+      - name: Upload a Build Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: Spark
-          path: ./build/libs/Spark-T*.jar
-      - name: Upload Artifact to Discord
-        uses: sinshutu/upload-to-discord@master
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.WEBHOOK69 }}
-        with:
-          args: ./build/libs/Spark-T*.jar
+          name: test
+          path: ./build/libs/*.jar  
